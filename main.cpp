@@ -226,79 +226,30 @@ void editContact(vector <ContactData> &contacts)
     cout << "You provided invalid ID!" << endl;
 }
 
-string addName(const vector <ContactData> contacts)
-{
-    string newName{};
-    cout << "Insert name: ";
-    newName = getLine();
-    return newName;
-}
-
-string addSurname(const vector <ContactData> contacts)
-{
-    string newSurname{};
-    cout << "Insert surname: ";
-    newSurname = getLine();
-    return newSurname;
-}
-
-string addEmail(const vector <ContactData> contacts)
-{
-    bool dataValid{};
-    string newEmail{};
-    cout << "Insert e-mail address: ";
-    newEmail = getLine();
-    dataValid = validateAddedData(contacts, newEmail);
-
-    if(!dataValid)
-        return "";
-    else
-        return newEmail;
-}
-
-string addAddress(const vector <ContactData> contacts)
-{
-    bool dataValid{};
-    string newAddress{};
-    cout << "Insert address: ";
-    newAddress = getLine();
-    dataValid = validateAddedData(contacts, newAddress);
-
-    if(!dataValid)
-        return "";
-    else
-        return newAddress;
-}
-
-string addTel(const vector <ContactData> contacts)
-{
-    bool dataValid{};
-    string newTel{};
-    cout << "Insert phone number: ";
-    newTel = getLine();
-    dataValid = validateAddedData(contacts, newTel);
-
-    if(!dataValid)
-        return "";
-    else
-        return newTel;
-}
-
 int addContact(vector <ContactData> &contacts, int numOfContacts)
 {
     string name{}, surname{}, email{}, address{}, tel{}, buf{};
 
-    name = addName(contacts);
-    surname = addSurname(contacts);
+    cout << "Insert name: ";
+    name = getLine();
 
-    email = addEmail(contacts);
-    if(email == ""){return numOfContacts;}
+    cout << "Insert surname: ";
+    surname = getLine();
 
-    address = addAddress(contacts);
-    if(address == ""){return numOfContacts;}
+    cout << "Insert email: ";
+    email = getLine();
+    if(!validateAddedData(contacts, email))
+        return numOfContacts;
 
-    tel = addTel(contacts);
-    if(tel == ""){return numOfContacts;}
+    cout << "Insert address: ";
+    address = getLine();
+    if(!validateAddedData(contacts, address))
+        return numOfContacts;
+
+    cout << "Insert phone number: ";
+    tel = getLine();
+    if(!validateAddedData(contacts, tel))
+        return numOfContacts;
 
     ContactData newContact{};
     newContact.name = name;
@@ -363,14 +314,6 @@ void displayAllContacts(const vector <ContactData> contacts)
         for(size_t i = 0; i < contacts.size(); i++)
             displayContact(contacts, i);
     }
-}
-
-string pushWord(string line, int j, int i)
-{
-    string word{};
-    word = line.substr(j, i - j);
-    j = i+1;
-    return word;
 }
 
 ContactData extractContactFromLine(string line)
