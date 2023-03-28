@@ -6,3 +6,5 @@ ave.txt
 13_Address_book.layout
 bin/
 obj/
+main.exe
+main.o
