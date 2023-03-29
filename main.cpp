@@ -31,6 +31,22 @@ void displayContact(const vector <ContactData> contacts, int i)
     cout << contacts[i].email << " | " << contacts[i].address << " | " << contacts[i].tel << " | "<< endl;
 }
 
+void exportContactsToFile(vector <ContactData> contacts)
+{
+    fstream file{};
+    size_t i{0};
+    file.open("save.txt", ios::out);
+
+    while(i < contacts.size())
+    {
+        file << to_string(contacts[i].id) << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
+        contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
+
+        i++;
+    }
+    file.close();
+}
+
 int deleteContact(vector <ContactData> &contacts, int numOfContacts)
 {
     int removedId{};
@@ -51,6 +67,7 @@ int deleteContact(vector <ContactData> &contacts, int numOfContacts)
                 {
                     contacts.erase(contacts.begin() + i);
                     cout << "Contact has been removed from your book." << endl;
+                    exportContactsToFile(contacts);
                     return numOfContacts - 1;
                 }
                 else if(choice == 'N' || choice == 'n')
@@ -220,6 +237,7 @@ void editContact(vector <ContactData> &contacts)
             cout << "Your choice:" << endl;
             displayContact(contacts, i);
             executeEdition(contacts, i);
+            exportContactsToFile(contacts);
             return;
         }
     }
@@ -261,6 +279,7 @@ int addContact(vector <ContactData> &contacts, int numOfContacts)
 
     contacts.push_back(newContact);
     cout << "New contact has been added." << endl;
+    exportContactsToFile(contacts);
     Sleep(1000);
     return numOfContacts + 1;
 }
@@ -394,22 +413,6 @@ int importContactsFromFile(vector <ContactData> &contacts)
     }
     file.close();
     return numOfContacts;
-}
-
-void exportContactsToFile(vector <ContactData> contacts)
-{
-    fstream file{};
-    size_t i{0};
-    file.open("save.txt", ios::out);
-
-    while(i < contacts.size())
-    {
-        file << to_string(contacts[i].id) << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
-        contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << endl;
-
-        i++;
-    }
-    file.close();
 }
 
 void exitProgram(vector <ContactData> contacts)
