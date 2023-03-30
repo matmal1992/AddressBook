@@ -61,6 +61,20 @@ void exportContactsToFile(vector <ContactData> contacts)
     file.close();
 }
 
+void exportUsersToFile(vector <User> users)
+{
+    fstream file{};
+    size_t i{0};
+    file.open("Users.txt", ios::out);
+
+    while(i < users.size())
+    {
+        file << to_string(users[i].id) << "|" << users[i].login << "|" << users[i].password << "|" << endl;
+        i++;
+    }
+    file.close();
+}
+
 int deleteContact(vector <ContactData> &contacts, int numOfContacts)
 {
     int removedId{};
@@ -465,7 +479,6 @@ User extractUserFromLine(string line)
     return newUser;
 }
 
-
 void importUsersFromFile(vector <User> &users)
 {
     User newUser{};
@@ -529,6 +542,7 @@ void changeUserPassword(vector <User> &users, int userId)
                 cin >> newPassword;
 
                 users[i].password = newPassword;
+                exportUsersToFile(users);
 
                 cout << "Your password has been changed." << endl;
                 Sleep(1000);
@@ -572,6 +586,7 @@ void registerUser(vector <User> &users)
         users.push_back(user);
 
         cout << "User '" << login << "' has been added." << endl;
+        exportUsersToFile(users);
         Sleep(1000);
     }
 }
