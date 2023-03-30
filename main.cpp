@@ -17,6 +17,13 @@ struct ContactData
     int id{};
 };
 
+struct User
+{
+    string login{};
+    string password{};
+    int id{};
+};
+
 string getLine()
 {
     string imput = "";
@@ -436,7 +443,86 @@ void exitProgram(vector <ContactData> contacts)
     }
 }
 
-int main()
+int registerUser(vector <User> &users, int id)
+{
+    User user{};
+    string login{}, password{};
+    bool validLogin = true;
+
+    cout << "Insert login: ";
+    cin >> login;
+
+    for(auto c: users)
+    {
+        if(login == c.login)
+        {
+            cout << "Such login already exists!" << endl;
+            validLogin = false;
+        }
+    }
+
+    if(validLogin)
+    {
+        cout << "Insert password: ";
+        cin >> password;
+
+        user.login = login;
+        user.password = password;
+        user.id = id + 1;
+        users.push_back(user);
+
+        id++;
+        cout << "User '" << login << "' has been added." << endl;
+    }
+    system("pause");
+    return id;
+}
+
+int signIn(vector <User> &users)
+{
+    User user{};
+    string login{}, password{};
+    int actualId = 0;
+    bool validLogin = false;
+
+    cout << "Insert login: ";
+    cin >> login;
+
+    for(auto c: users)
+    {
+        if(login == c.login)
+        {
+            cout << "Insert password: ";
+            cin >> password;
+            if(password == c.password)
+            {
+                actualId = c.id;
+                cout << "Successful login" << endl;
+            }
+            else
+            {
+                cout << "Incorrect password!" << endl;
+                return 0;
+            }
+            validLogin = true;
+        }
+    }
+
+    if(!validLogin)
+        cout << "There is no such login in our base!" << endl;
+
+    return actualId;
+}
+
+void displayUsers(vector <User> users)
+{
+    cout << "All users: " << endl << endl;
+    for(auto c: users)
+        cout << "ID: " << c.id << " Login: " << c.login << " Password: " << c.password << endl;
+}
+
+
+void userAddressBook(int userId)
 {
     vector <ContactData> contacts{};
     int numOfContacts{0};
@@ -491,5 +577,54 @@ int main()
         }
         system("cls");
     }
+}
+
+int main()
+{
+    vector <User> users{};
+    char choice{};
+    int userId{0};
+    int actualId{};
+
+    while(true)
+    {
+        cout << ">>> MAIN MENU <<<" << endl;
+        cout << "--------------------------" << endl;
+        cout << "1. Sign in" << endl;
+        cout << "2. Sign up" << endl;
+        cout << "3. Close the program" << endl;
+        cout << "4. Display users" << endl;
+        cout << "--------------------------" << endl;
+        cout << "Your choice: ";
+        cin >> choice;
+
+        switch(choice)
+        {
+        case '1':
+            actualId = signIn(users);
+            if(actualId != 0)
+            {
+                userAddressBook(actualId);
+            }
+            //system("pause");
+            break;
+        case '2':
+            userId = registerUser(users, userId);
+            break;
+        case '3':
+            //some saving
+            exit(0);
+            break;
+        case '4':
+            displayUsers(users);
+            system("pause");
+            break;
+        default:
+            cout << "Incorrect choice" << endl;
+            Sleep(1000);
+        }
+        system("cls");
+    }
+
     return 0;
 }
