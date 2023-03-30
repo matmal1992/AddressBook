@@ -443,7 +443,7 @@ void exitProgram(vector <ContactData> contacts)
     }
 }
 
-int registerUser(vector <User> &users, int id)
+void registerUser(vector <User> &users)
 {
     User user{};
     string login{}, password{};
@@ -468,14 +468,12 @@ int registerUser(vector <User> &users, int id)
 
         user.login = login;
         user.password = password;
-        user.id = id + 1;
+        user.id = users.size() + 1;
         users.push_back(user);
 
-        id++;
         cout << "User '" << login << "' has been added." << endl;
     }
     system("pause");
-    return id;
 }
 
 int signIn(vector <User> &users)
@@ -583,7 +581,6 @@ int main()
 {
     vector <User> users{};
     char choice{};
-    int userId{0};
     int actualId{};
 
     while(true)
@@ -609,7 +606,7 @@ int main()
             //system("pause");
             break;
         case '2':
-            userId = registerUser(users, userId);
+            registerUser(users);
             break;
         case '3':
             //some saving
