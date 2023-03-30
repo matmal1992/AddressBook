@@ -429,6 +429,69 @@ int importContactsFromFile(vector <ContactData> &contacts)
     return numOfContacts;
 }
 
+User extractUserFromLine(string line)
+{
+    User newUser{};
+    int counter{0};
+    string word{};
+
+    for (size_t i = 0, j = 0; i < line.length(); i++)
+    {
+        if (line[i] == '|')
+        {
+            counter++;
+
+            switch(counter)
+            {
+            case 1:
+                word = line.substr(j, i - j);
+                j = i+1;
+                newUser.id = atoi(word.c_str());
+                break;
+            case 2:
+                word = line.substr(j, i - j);
+                j = i+1;
+                newUser.login = word;
+                break;
+            case 3:
+                word = line.substr(j, i - j);
+                j = i+1;
+                newUser.password = word;
+                counter = 0;
+                break;
+            }
+        }
+    }
+    return newUser;
+}
+
+
+void importUsersFromFile(vector <User> &users)
+{
+    User newUser{};
+    string line{};
+    int lineNum{0};
+    fstream file{};
+    int numOfUsers{0};
+
+    file.open("Users.txt", ios::in);
+
+    if(file.good())
+    {
+        while(getline(file, line))
+        {
+            lineNum++;
+            newUser = extractUserFromLine(line);
+            numOfUsers++;
+            users.push_back(newUser);
+        }
+    }
+    else
+        cout << "There is no file to import data. Your user's base is empty now." << endl << endl;
+
+    file.close();
+}
+
 void exitProgram(vector <ContactData> contacts)
 {
     char exitChoice{};
@@ -620,6 +683,8 @@ int main()
     vector <User> users{};
     char choice{};
     int actualId{};
+
+    importUsersFromFile(users);
 
     while(true)
     {
