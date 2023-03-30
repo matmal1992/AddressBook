@@ -32,6 +32,13 @@ string getLine()
     return imput;
 }
 
+void displayUsers(vector <User> users)
+{
+    cout << "All users: " << endl << endl;
+    for(auto c: users)
+        cout << "ID: " << c.id << " Login: " << c.login << " Password: " << c.password << endl;
+}
+
 void displayContact(const vector <ContactData> contacts, int i)
 {
     cout << contacts[i].id << " | " << contacts[i].name << " | " << contacts[i].surname << " | ";
@@ -449,20 +456,17 @@ void changeUserPassword(vector <User> &users, int userId)
 
     cout << "Insert your old password: ";
     cin >> oldPassword;
-    for(auto c : users)
+    for(size_t i = 0; i < users.size(); i++)
     {
-        if(c.id == userId)
+        if(users[i].id == userId)
         {
-            if(c.password == oldPassword)
+            if(users[i].password == oldPassword)
             {
                 cout << "Insert your new password: ";
                 cin >> newPassword;
 
-                for(auto c : users)
-                {
-                    if(c.id == userId)
-                        c.password = newPassword;
-                }
+                users[i].password = newPassword;
+
                 cout << "Your password has been changed." << endl;
                 Sleep(1000);
             }
@@ -472,7 +476,6 @@ void changeUserPassword(vector <User> &users, int userId)
                 Sleep(1000);
             }
         }
-
     }
 }
 
@@ -550,15 +553,7 @@ int signIn(vector <User> &users)
     return actualId;
 }
 
-void displayUsers(vector <User> users)
-{
-    cout << "All users: " << endl << endl;
-    for(auto c: users)
-        cout << "ID: " << c.id << " Login: " << c.login << " Password: " << c.password << endl;
-}
-
-
-void userAddressBook(vector <User> users, int userId)
+void userAddressBook(vector <User> &users, int &userId)
 {
     vector <ContactData> contacts{};
     int numOfContacts{0};
@@ -566,8 +561,9 @@ void userAddressBook(vector <User> users, int userId)
 
     numOfContacts = importContactsFromFile(contacts);
 
-    while(true)
+    while(choice != '8')
     {
+        //greet an user
         cout << "1. Add new contact." << endl;
         cout << "2. Find by name." << endl;
         cout << "3. Find by surname." << endl;
@@ -575,7 +571,7 @@ void userAddressBook(vector <User> users, int userId)
         cout << "5. Delete a contact." << endl;
         cout << "6. Edit a contact." << endl;
         cout << "7. Change password." << endl;
-        cout << "9. Close the program." << endl << endl;
+        cout << "8. Log out." << endl;
 
         cout << "Your choice: ";
         cin >> choice;
@@ -608,9 +604,9 @@ void userAddressBook(vector <User> users, int userId)
         case '7':
             changeUserPassword(users, userId);
             break;
-        case '9':
-            exitProgram(contacts);
-            exit(0);
+        case '8':
+            userId = 0;
+            break;
         default:
             cout << "Incorrect choice" << endl;
             Sleep(1000);
@@ -652,6 +648,7 @@ int main()
             break;
         case '3':
             //some saving
+            //exitProgram(contacts);
             exit(0);
             break;
         case '4':
