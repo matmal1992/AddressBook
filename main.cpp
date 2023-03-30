@@ -443,6 +443,39 @@ void exitProgram(vector <ContactData> contacts)
     }
 }
 
+void changeUserPassword(vector <User> &users, int userId)
+{
+    string oldPassword{}, newPassword{};
+
+    cout << "Insert your old password: ";
+    cin >> oldPassword;
+    for(auto c : users)
+    {
+        if(c.id == userId)
+        {
+            if(c.password == oldPassword)
+            {
+                cout << "Insert your new password: ";
+                cin >> newPassword;
+
+                for(auto c : users)
+                {
+                    if(c.id == userId)
+                        c.password = newPassword;
+                }
+                cout << "Your password has been changed." << endl;
+                Sleep(1000);
+            }
+            else
+            {
+                cout << "You provided incorrect password!" << endl;
+                Sleep(1000);
+            }
+        }
+
+    }
+}
+
 void registerUser(vector <User> &users)
 {
     User user{};
@@ -457,6 +490,7 @@ void registerUser(vector <User> &users)
         if(login == c.login)
         {
             cout << "Such login already exists!" << endl;
+            Sleep(1000);
             validLogin = false;
         }
     }
@@ -472,8 +506,8 @@ void registerUser(vector <User> &users)
         users.push_back(user);
 
         cout << "User '" << login << "' has been added." << endl;
+        Sleep(1000);
     }
-    system("pause");
 }
 
 int signIn(vector <User> &users)
@@ -495,11 +529,12 @@ int signIn(vector <User> &users)
             if(password == c.password)
             {
                 actualId = c.id;
-                cout << "Successful login" << endl;
+                cout << "Successful login" << endl << endl;
             }
             else
             {
                 cout << "Incorrect password!" << endl;
+                Sleep(1000);
                 return 0;
             }
             validLogin = true;
@@ -507,7 +542,10 @@ int signIn(vector <User> &users)
     }
 
     if(!validLogin)
+    {
         cout << "There is no such login in our base!" << endl;
+        Sleep(1000);
+    }
 
     return actualId;
 }
@@ -520,7 +558,7 @@ void displayUsers(vector <User> users)
 }
 
 
-void userAddressBook(int userId)
+void userAddressBook(vector <User> users, int userId)
 {
     vector <ContactData> contacts{};
     int numOfContacts{0};
@@ -536,6 +574,7 @@ void userAddressBook(int userId)
         cout << "4. Display all contacts." << endl;
         cout << "5. Delete a contact." << endl;
         cout << "6. Edit a contact." << endl;
+        cout << "7. Change password." << endl;
         cout << "9. Close the program." << endl << endl;
 
         cout << "Your choice: ";
@@ -565,6 +604,9 @@ void userAddressBook(int userId)
         case '6':
             editContact(contacts);
             system("pause");
+            break;
+        case '7':
+            changeUserPassword(users, userId);
             break;
         case '9':
             exitProgram(contacts);
@@ -601,7 +643,7 @@ int main()
             actualId = signIn(users);
             if(actualId != 0)
             {
-                userAddressBook(actualId);
+                userAddressBook(users, actualId);
             }
             //system("pause");
             break;
