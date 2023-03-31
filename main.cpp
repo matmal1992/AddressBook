@@ -88,6 +88,43 @@ void exportContactsToFile_Edit(vector <ContactData> contacts, int editedId, int 
     rename("TempContacts.txt", "Contacts.txt");
 }
 
+void exportContactsToFile_Delete(vector <ContactData> contacts, int removedId, int i, int userId)
+{
+    fstream fileContacts{};
+    fstream fileTemp{};
+    size_t firstBarPos{};
+    string line{};
+    string idInLineString{};
+    int idInLineInt{};
+
+    fileContacts.open("Contacts.txt", ios::in);
+    fileTemp.open("TempContacts.txt", ios::out);
+
+    if(fileContacts.good())
+    {
+        while(getline(fileContacts, line))
+        {
+            firstBarPos = line.find('|');
+            idInLineString = line.substr(0, firstBarPos);
+            idInLineInt = atoi(idInLineString.c_str());
+
+            if(idInLineInt != removedId)
+            {
+                fileTemp << line << endl;
+            }
+        }
+    }
+    else
+    {
+        cout << "Something wrong with Contacts.txt." << endl;
+        system("pause");
+    }
+    fileContacts.close();
+    fileTemp.close();
+    remove("Contacts.txt");
+    rename("TempContacts.txt", "Contacts.txt");
+}
+
 void exportUsersToFile(vector <User> users)
 {
     fstream file{};
@@ -102,7 +139,7 @@ void exportUsersToFile(vector <User> users)
     file.close();
 }
 
-int deleteContact(vector <ContactData> &contacts, int numOfContacts)
+int deleteContact(vector <ContactData> &contacts, int numOfContacts, int userId)
 {
     int removedId{};
     char choice{};
@@ -122,7 +159,7 @@ int deleteContact(vector <ContactData> &contacts, int numOfContacts)
                 {
                     contacts.erase(contacts.begin() + i);
                     cout << "Contact has been removed from your book." << endl;
-                    //exportContactsToFile(contacts);
+                    exportContactsToFile_Delete(contacts, removedId, i, userId);
                     return numOfContacts - 1;
                 }
                 else if(choice == 'N' || choice == 'n')
@@ -714,7 +751,7 @@ void userAddressBook(vector <User> &users, int &userId)
             system("pause");
             break;
         case '5':
-            numOfContacts = deleteContact(contacts, numOfContacts);
+            numOfContacts = deleteContact(contacts, numOfContacts, userId);
             system("pause");
             break;
         case '6':
