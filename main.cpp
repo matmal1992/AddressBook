@@ -352,7 +352,7 @@ void findBySurname(const vector <ContactData> contacts)
         cout << "There is no contact with such surname!" << endl;
 }
 
-void displayAllContacts(const vector <ContactData> contacts)
+void displayUserContacts(const vector <ContactData> contacts)
 {
     if(contacts.empty())
         cout << "There are no contacts in your book!." << endl;
@@ -363,7 +363,7 @@ void displayAllContacts(const vector <ContactData> contacts)
     }
 }
 
-ContactData extractContactFromLine(string line)
+ContactData extractContactFromLine(string line, int userId)
 {
     ContactData newContact{};
     int counter{0};
@@ -418,13 +418,15 @@ ContactData extractContactFromLine(string line)
     return newContact;
 }
 
-int importContactsFromFile(vector <ContactData> &contacts)
+int importUserContactsFromFile(vector <ContactData> &contacts, int userId)
 {
     ContactData newContact{};
     string line{};
-    int lineNum{0};
     fstream file{};
     int numOfContacts{0};
+    int idInLineInt{};
+    string idInLineString{};
+    size_t firstBarPos{}, secondBarPos{}, difference{};
 
     file.open("Contacts.txt", ios::in);
 
@@ -432,10 +434,18 @@ int importContactsFromFile(vector <ContactData> &contacts)
     {
         while(getline(file, line))
         {
-            lineNum++;
-            newContact = extractContactFromLine(line);
-            numOfContacts++;
-            contacts.push_back(newContact);
+            firstBarPos = line.find('|');
+            secondBarPos = line.find('|', firstBarPos + 1);
+            difference = secondBarPos - firstBarPos;
+            idInLineString = line.substr(firstBarPos + 1, difference - 1);
+            idInLineInt = atoi(idInLineString.c_str());
+
+            if(idInLineInt == userId)
+            {
+                newContact = extractContactFromLine(line, userId);
+                numOfContacts++;
+                contacts.push_back(newContact);
+            }
         }
     }
     else
@@ -641,7 +651,7 @@ void userAddressBook(vector <User> &users, int &userId)
     int numOfContacts{0}; //refactor numofcontacts
     char choice{};
 
-    numOfContacts = importContactsFromFile(contacts);
+    numOfContacts = importUserContactsFromFile(contacts, userId);
 
     while(choice != '8')
     {
@@ -672,7 +682,7 @@ void userAddressBook(vector <User> &users, int &userId)
             system("pause");
             break;
         case '4':
-            displayAllContacts(contacts);
+            displayUserContacts(contacts);
             system("pause");
             break;
         case '5':
