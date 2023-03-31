@@ -382,27 +382,31 @@ ContactData extractContactFromLine(string line)
                 j = i+1;
                 newContact.id = atoi(word.c_str());
                 break;
+
             case 2:
-                word = line.substr(j, i - j);
                 j = i+1;
-                newContact.name = word;
                 break;
             case 3:
                 word = line.substr(j, i - j);
                 j = i+1;
-                newContact.surname = word;
+                newContact.name = word;
                 break;
             case 4:
                 word = line.substr(j, i - j);
                 j = i+1;
-                newContact.email = word;
+                newContact.surname = word;
                 break;
             case 5:
                 word = line.substr(j, i - j);
                 j = i+1;
-                newContact.address = word;
+                newContact.email = word;
                 break;
             case 6:
+                word = line.substr(j, i - j);
+                j = i+1;
+                newContact.address = word;
+                break;
+            case 7:
                 word = line.substr(j, i - j);
                 j = i+1;
                 newContact.tel = word;
@@ -422,7 +426,7 @@ int importContactsFromFile(vector <ContactData> &contacts)
     fstream file{};
     int numOfContacts{0};
 
-    file.open("save.txt", ios::in);
+    file.open("Contacts.txt", ios::in);
 
     if(file.good())
     {
@@ -634,7 +638,7 @@ int signIn(vector <User> &users)
 void userAddressBook(vector <User> &users, int &userId)
 {
     vector <ContactData> contacts{};
-    int numOfContacts{0};
+    int numOfContacts{0}; //refactor numofcontacts
     char choice{};
 
     numOfContacts = importContactsFromFile(contacts);
