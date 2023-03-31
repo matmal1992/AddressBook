@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <cstdio>
 
 using namespace std;
 
@@ -45,20 +46,46 @@ void displayContact(const vector <ContactData> contacts, int i)
     cout << contacts[i].email << " | " << contacts[i].address << " | " << contacts[i].tel << " | "<< endl;
 }
 
-void exportContactsToFile(vector <ContactData> contacts)
+void exportContactsToFile_Edit(vector <ContactData> contacts, int editedId, int i, int userId)
 {
-    fstream file{};
-    size_t i{0};
-    file.open("save.txt", ios::out);
+    fstream fileContacts{};
+    fstream fileTemp{};
+    size_t firstBarPos{};
+    string line{};
+    string idInLineString{};
+    int idInLineInt{};
 
-    while(i < contacts.size())
+    fileContacts.open("Contacts.txt", ios::in);
+    fileTemp.open("TempContacts.txt", ios::out);
+
+    if(fileContacts.good())
     {
-        file << to_string(contacts[i].id) << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
-        contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
+        while(getline(fileContacts, line))
+        {
+            firstBarPos = line.find('|');
+            idInLineString = line.substr(0, firstBarPos);
+            idInLineInt = atoi(idInLineString.c_str());
 
-        i++;
+            if(idInLineInt == editedId)
+            {
+                fileTemp << to_string(contacts[i].id) << "|"<< userId << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
+                contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
+            }
+            else
+            {
+                fileTemp << line << endl;
+            }
+        }
     }
-    file.close();
+    else
+    {
+        cout << "Something wrong with Contacts.txt." << endl;
+        system("pause");
+    }
+    fileContacts.close();
+    fileTemp.close();
+    remove("Contacts.txt");
+    rename("TempContacts.txt", "Contacts.txt");
 }
 
 void exportUsersToFile(vector <User> users)
@@ -95,7 +122,7 @@ int deleteContact(vector <ContactData> &contacts, int numOfContacts)
                 {
                     contacts.erase(contacts.begin() + i);
                     cout << "Contact has been removed from your book." << endl;
-                    exportContactsToFile(contacts);
+                    //exportContactsToFile(contacts);
                     return numOfContacts - 1;
                 }
                 else if(choice == 'N' || choice == 'n')
@@ -252,7 +279,7 @@ void executeEdition(vector <ContactData> &contacts, int i)
     }
 }
 
-void editContact(vector <ContactData> &contacts)
+void editContact(vector <ContactData> &contacts, int userId)
 {
     int editedId{};
     cout << "Enter ID of a contact to edit: ";
@@ -265,7 +292,8 @@ void editContact(vector <ContactData> &contacts)
             cout << "Your choice:" << endl;
             displayContact(contacts, i);
             executeEdition(contacts, i);
-            exportContactsToFile(contacts);
+            exportContactsToFile_Edit(contacts, editedId, i, userId);
+
             return;
         }
     }
@@ -307,7 +335,7 @@ int addContact(vector <ContactData> &contacts, int numOfContacts)
 
     contacts.push_back(newContact);
     cout << "New contact has been added." << endl;
-    exportContactsToFile(contacts);
+    //exportContactsToFile(contacts);
     Sleep(1000);
     return numOfContacts + 1;
 }
@@ -526,7 +554,7 @@ void exitProgram(vector <ContactData> contacts)
     cin >> exitChoice;
     if(exitChoice == 'Y' || exitChoice == 'y')
     {
-        exportContactsToFile(contacts);
+        //exportContactsToFile(contacts);
         exit(0);
     }
     else if(exitChoice == 'N' || exitChoice == 'n')
@@ -690,7 +718,7 @@ void userAddressBook(vector <User> &users, int &userId)
             system("pause");
             break;
         case '6':
-            editContact(contacts);
+            editContact(contacts, userId);
             system("pause");
             break;
         case '7':
