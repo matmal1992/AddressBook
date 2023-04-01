@@ -208,7 +208,7 @@ bool validateAddedData(vector <ContactData> contacts, string data)
 void changeName(vector <ContactData> &contacts, int i)
 {
     string newName{};
-    cout << "Enter new surname: ";
+    cout << "Enter new name: ";
     cin.sync();
     newName = getLine();
 
@@ -372,35 +372,34 @@ void exportContactsToFile_Add(vector <ContactData> contacts, int i, int userId)
 string getLastLine()
 {
     string filename = "Contacts.txt";
-    ifstream fin{};
+    ifstream fin;
+    fin.open(filename);
+    int i{};
+    char ch{};
     string lastLine{};
 
-    fin.open(filename);
     if(fin.is_open())
     {
-        fin.seekg(-1,ios_base::end);                // go to one spot before the EOF
+        fin.seekg(-3,ios_base::end);
+        i = fin.tellg();
 
-        bool keepLooping = true;
-        while(keepLooping)
+        for(i; i > 0; i--)
         {
-            char ch;
-            fin.get(ch);                            // Get current byte's data
+            fin.get(ch);
+            fin.seekg(i);
 
-            if((int)fin.tellg() <= 1) {             // If the data was at or before the 0th byte
-                fin.seekg(0);                       // The first line is the last line
-                keepLooping = false;                // So stop there
-            }
-            else if(ch == '\n') {                   // If the data was a newline
-                keepLooping = false;                // Stop at the current position.
-            }
-            else {                                  // If the data was neither a newline nor at the 0 byte
-                fin.seekg(-2,ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+            if(ch == '\n')
+            {
+                fin.seekg(2, ios_base::cur);
+                break;
             }
         }
-
-        getline(fin,lastLine);                      // Read the current line
-        fin.close();
     }
+
+    getline(fin,lastLine);
+    cout << lastLine << '\n';
+
+    fin.close();
     return lastLine;
 }
 
