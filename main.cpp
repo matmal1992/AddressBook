@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <cstdio>
 
@@ -337,7 +338,92 @@ void editContact(vector <ContactData> &contacts, int userId)
     cout << "You provided invalid ID!" << endl;
 }
 
-int addContact(vector <ContactData> &contacts, int numOfContacts)
+void exportContactsToFile_Add(vector <ContactData> contacts, int i, int userId)
+{
+    fstream fileContacts{};
+    fstream fileTemp{};
+    string line{};
+    string idInLineString{};
+
+    fileContacts.open("Contacts.txt", ios::in);
+    fileTemp.open("TempContacts.txt", ios::out);
+
+    if(fileContacts.good())
+    {
+        while(getline(fileContacts, line))
+        {
+            fileTemp << line << endl;
+        }
+
+        fileTemp << to_string(contacts[i].id) << "|"<< userId << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
+        contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
+    }
+    else
+    {
+        cout << "Something wrong with Contacts.txt." << endl;
+        system("pause");
+    }
+    fileContacts.close();
+    fileTemp.close();
+    remove("Contacts.txt");
+    rename("TempContacts.txt", "Contacts.txt");
+}
+
+string getLastLine()
+{
+    string filename = "Contacts.txt";
+    ifstream fin{};
+    string lastLine{};
+
+    fin.open(filename);
+    if(fin.is_open())
+    {
+        fin.seekg(-1,ios_base::end);                // go to one spot before the EOF
+
+        bool keepLooping = true;
+        while(keepLooping)
+        {
+            char ch;
+            fin.get(ch);                            // Get current byte's data
+
+            if((int)fin.tellg() <= 1) {             // If the data was at or before the 0th byte
+                fin.seekg(0);                       // The first line is the last line
+                keepLooping = false;                // So stop there
+            }
+            else if(ch == '\n') {                   // If the data was a newline
+                keepLooping = false;                // Stop at the current position.
+            }
+            else {                                  // If the data was neither a newline nor at the 0 byte
+                fin.seekg(-2,ios_base::cur);        // Move to the front of that data, then to the front of the data before it
+            }
+        }
+
+        getline(fin,lastLine);                      // Read the current line
+        fin.close();
+    }
+    return lastLine;
+}
+
+int getIdForNewContact()
+{
+    fstream fileContacts{};
+    size_t firstBarPos{};
+    string idInLineString{};
+    int idInLineInt{};
+
+    string lastLine = getLastLine();
+
+    firstBarPos = lastLine.find('|');
+    idInLineString = lastLine.substr(0, firstBarPos);
+    idInLineInt = atoi(idInLineString.c_str());
+
+    cout << "New Id: " << idInLineInt + 1 << endl;
+    system("pause");
+
+    return idInLineInt + 1;
+}
+
+int addContact(vector <ContactData> &contacts, int numOfContacts, int userId)
 {
     string name{}, surname{}, email{}, address{}, tel{}, buf{};
 
@@ -368,11 +454,14 @@ int addContact(vector <ContactData> &contacts, int numOfContacts)
     newContact.email = email;
     newContact.address = address;
     newContact.tel = tel;
-    newContact.id = numOfContacts + 1;
+    newContact.id = getIdForNewContact();
+
+    cout << "New ID: " << newContact.id << endl;
+    system("pause");
 
     contacts.push_back(newContact);
     cout << "New contact has been added." << endl;
-    //exportContactsToFile(contacts);
+    exportContactsToFile_Add(contacts, numOfContacts, userId);
     Sleep(1000);
     return numOfContacts + 1;
 }
@@ -736,7 +825,7 @@ void userAddressBook(vector <User> &users, int &userId)
         switch(choice)
         {
         case '1':
-            numOfContacts = addContact(contacts, numOfContacts);
+            numOfContacts = addContact(contacts, numOfContacts, userId);
             break;
         case '2':
             findByName(contacts);
