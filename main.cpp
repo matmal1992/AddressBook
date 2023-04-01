@@ -777,7 +777,7 @@ int signIn(vector <User> &users)
             if(password == c.password)
             {
                 actualId = c.id;
-                cout << "Successful login" << endl << endl;
+                cout << endl << endl;
             }
             else
             {
@@ -798,7 +798,20 @@ int signIn(vector <User> &users)
     return actualId;
 }
 
-void userAddressBook(vector <User> &users, int &userId)
+void greetUser(vector <User> &users, int userId)
+{
+    for(size_t i = 0; i < users.size(); i++)
+    {
+        if(users[i].id == userId)
+        {
+            cout << "You are logged as " << users[i].login << endl;
+            cout << "--------------------------" << endl;
+            break;
+        }
+    }
+}
+
+void userAddressBookMenu(vector <User> &users, int &userId)
 {
     vector <ContactData> contacts{};
     int numOfContacts{0}; //refactor numofcontacts
@@ -808,7 +821,7 @@ void userAddressBook(vector <User> &users, int &userId)
 
     while(choice != '8')
     {
-        //greet an user
+        greetUser(users, userId);
         cout << "1. Add new contact." << endl;
         cout << "2. Find by name." << endl;
         cout << "3. Find by surname." << endl;
@@ -886,9 +899,8 @@ int main()
             actualId = signIn(users);
             if(actualId != 0)
             {
-                userAddressBook(users, actualId);
+                userAddressBookMenu(users, actualId);
             }
-            //system("pause");
             break;
         case '2':
             registerUser(users);
