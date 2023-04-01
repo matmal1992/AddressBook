@@ -140,7 +140,7 @@ void exportUsersToFile(vector <User> users)
     file.close();
 }
 
-int deleteContact(vector <ContactData> &contacts, int numOfContacts, int userId)
+void deleteContact(vector <ContactData> &contacts, int userId)
 {
     int removedId{};
     char choice{};
@@ -161,11 +161,11 @@ int deleteContact(vector <ContactData> &contacts, int numOfContacts, int userId)
                     contacts.erase(contacts.begin() + i);
                     cout << "Contact has been removed from your book." << endl;
                     exportContactsToFile_Delete(contacts, removedId, i, userId);
-                    return numOfContacts - 1;
+                    return;
                 }
                 else if(choice == 'N' || choice == 'n')
                 {
-                    return numOfContacts;
+                    return;
                 }
                 else
                 {
@@ -176,7 +176,7 @@ int deleteContact(vector <ContactData> &contacts, int numOfContacts, int userId)
         }
     }
     cout << "You provided invalid ID!" << endl;
-    return numOfContacts;
+    Sleep(1000);
 }
 
 bool validateAddedData(vector <ContactData> contacts, string data)
@@ -338,12 +338,13 @@ void editContact(vector <ContactData> &contacts, int userId)
     cout << "You provided invalid ID!" << endl;
 }
 
-void exportContactsToFile_Add(vector <ContactData> contacts, int i, int userId)
+void exportContactsToFile_Add(vector <ContactData> contacts, int userId)
 {
     fstream fileContacts{};
     fstream fileTemp{};
     string line{};
     string idInLineString{};
+    int i = contacts.size() - 1;
 
     fileContacts.open("Contacts.txt", ios::in);
     fileTemp.open("TempContacts.txt", ios::out);
@@ -383,7 +384,7 @@ string getLastLine()
         fin.seekg(-3,ios_base::end);
         i = fin.tellg();
 
-        for(i; i > 0; i--)
+        for(; i > 0; i--)
         {
             fin.get(ch);
             fin.seekg(i);
@@ -416,53 +417,41 @@ int getIdForNewContact()
     idInLineString = lastLine.substr(0, firstBarPos);
     idInLineInt = atoi(idInLineString.c_str());
 
-    cout << "New Id: " << idInLineInt + 1 << endl;
-    system("pause");
-
     return idInLineInt + 1;
 }
 
-int addContact(vector <ContactData> &contacts, int numOfContacts, int userId)
+void addContact(vector <ContactData> &contacts, int userId)
 {
-    string name{}, surname{}, email{}, address{}, tel{}, buf{};
+    string address{}, tel{};
+    ContactData newContact{};
 
     cout << "Insert name: ";
-    name = getLine();
+    newContact.name = getLine();
 
     cout << "Insert surname: ";
-    surname = getLine();
+    newContact.surname = getLine();
 
     cout << "Insert email: ";
-    email = getLine();
-    if(!validateAddedData(contacts, email))
-        return numOfContacts;
+    newContact.email = getLine();
+    if(!validateAddedData(contacts, newContact.email))
+        return;
 
     cout << "Insert address: ";
-    address = getLine();
-    if(!validateAddedData(contacts, address))
-        return numOfContacts;
+    newContact.address = getLine();
+    if(!validateAddedData(contacts, newContact.address))
+        return;
 
     cout << "Insert phone number: ";
-    tel = getLine();
-    if(!validateAddedData(contacts, tel))
-        return numOfContacts;
+    newContact.tel = getLine();
+    if(!validateAddedData(contacts, newContact.tel))
+        return;
 
-    ContactData newContact{};
-    newContact.name = name;
-    newContact.surname = surname;
-    newContact.email = email;
-    newContact.address = address;
-    newContact.tel = tel;
     newContact.id = getIdForNewContact();
-
-    cout << "New ID: " << newContact.id << endl;
-    system("pause");
 
     contacts.push_back(newContact);
     cout << "New contact has been added." << endl;
-    exportContactsToFile_Add(contacts, numOfContacts, userId);
+    exportContactsToFile_Add(contacts, userId);
     Sleep(1000);
-    return numOfContacts + 1;
 }
 
 void findByName(const vector <ContactData> contacts)
@@ -571,12 +560,11 @@ ContactData extractContactFromLine(string line, int userId)
     return newContact;
 }
 
-int importUserContactsFromFile(vector <ContactData> &contacts, int userId)
+void importUserContactsFromFile(vector <ContactData> &contacts, int userId)
 {
     ContactData newContact{};
     string line{};
     fstream file{};
-    int numOfContacts{0};
     int idInLineInt{};
     string idInLineString{};
     size_t firstBarPos{}, secondBarPos{}, difference{};
@@ -596,7 +584,6 @@ int importUserContactsFromFile(vector <ContactData> &contacts, int userId)
             if(idInLineInt == userId)
             {
                 newContact = extractContactFromLine(line, userId);
-                numOfContacts++;
                 contacts.push_back(newContact);
             }
         }
@@ -607,7 +594,6 @@ int importUserContactsFromFile(vector <ContactData> &contacts, int userId)
         system("pause");
     }
     file.close();
-    return numOfContacts;
 }
 
 User extractUserFromLine(string line)
@@ -814,10 +800,9 @@ void greetUser(vector <User> &users, int userId)
 void userAddressBookMenu(vector <User> &users, int &userId)
 {
     vector <ContactData> contacts{};
-    int numOfContacts{0}; //refactor numofcontacts
     char choice{};
 
-    numOfContacts = importUserContactsFromFile(contacts, userId);
+    importUserContactsFromFile(contacts, userId);
 
     while(choice != '8')
     {
@@ -837,7 +822,7 @@ void userAddressBookMenu(vector <User> &users, int &userId)
         switch(choice)
         {
         case '1':
-            numOfContacts = addContact(contacts, numOfContacts, userId);
+            addContact(contacts, userId);
             break;
         case '2':
             findByName(contacts);
@@ -852,7 +837,7 @@ void userAddressBookMenu(vector <User> &users, int &userId)
             system("pause");
             break;
         case '5':
-            numOfContacts = deleteContact(contacts, numOfContacts, userId);
+            deleteContact(contacts, userId);
             system("pause");
             break;
         case '6':
