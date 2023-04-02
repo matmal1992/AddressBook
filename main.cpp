@@ -60,7 +60,7 @@ int extractContactIdFromLine(string line)
     return idInLineInt;
 }
 
-void saveContactsAfterEdid(vector <ContactData> contacts, int i, int userId)
+void saveContactsAfterEdid(ContactData contact, int userId)
 {
     fstream fileContacts{}, fileTemp{};
     string line{};
@@ -75,10 +75,10 @@ void saveContactsAfterEdid(vector <ContactData> contacts, int i, int userId)
         {
             idInLineInt = extractContactIdFromLine(line);
 
-            if(idInLineInt == contacts[i].id)
+            if(idInLineInt == contact.id)
             {
-                fileTemp << to_string(contacts[i].id) << "|"<< userId << "|" << contacts[i].name << "|" << contacts[i].surname
-                << "|" << contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
+                fileTemp << to_string(contact.id) << "|" << userId << "|" << contact.name << "|" << contact.surname
+                << "|" << contact.email << "|" << contact.address << "|" << contact.tel << "|" << endl;
             }
             else
                 fileTemp << line << endl;
@@ -214,6 +214,7 @@ void changeName(vector <ContactData> &contacts, int i)
 
     contacts[i].name = newName;
     cout << "Name has been changed." << endl;
+    Sleep(1000);
 }
 
 void changeSurname(vector <ContactData> &contacts, int i)
@@ -225,6 +226,7 @@ void changeSurname(vector <ContactData> &contacts, int i)
 
     contacts[i].surname = newSurname;
     cout << "Surname has been changed." << endl;
+    Sleep(1000);
 }
 
 void changeEmail(vector <ContactData> &contacts, int i)
@@ -241,6 +243,7 @@ void changeEmail(vector <ContactData> &contacts, int i)
     {
         contacts[i].email = newEmail;
         cout << "Email has been changed." << endl;
+        Sleep(1000);
     }
 }
 
@@ -258,6 +261,7 @@ void changeAddress(vector <ContactData> &contacts, int i)
     {
         contacts[i].address = newAddress;
         cout << "Address has been changed." << endl;
+        Sleep(1000);
     }
 }
 
@@ -275,6 +279,7 @@ void changeTel(vector <ContactData> &contacts, int i)
     {
         contacts[i].tel = newTel;
         cout << "Phone number has been changed." << endl;
+        Sleep(1000);
     }
 }
 
@@ -330,7 +335,7 @@ void editContact(vector <ContactData> &contacts, int userId)
             cout << "Your choice:" << endl;
             displayContact(contacts[i]);
             executeEdition(contacts, i);
-            saveContactsAfterEdid(contacts, i, userId);
+            saveContactsAfterEdid(contacts[i], userId);
 
             return;
         }
@@ -359,11 +364,7 @@ void saveContactsAfterAdd(vector <ContactData> contacts, int userId)
         fileTemp << to_string(contacts[i].id) << "|"<< userId << "|" << contacts[i].name << "|" << contacts[i].surname << "|" <<
         contacts[i].email << "|" << contacts[i].address << "|" << contacts[i].tel << "|" << endl;
     }
-    else
-    {
-        cout << "Something wrong with Contacts.txt." << endl;
-        system("pause");
-    }
+
     fileContacts.close();
     fileTemp.close();
     remove("Contacts.txt");
@@ -381,8 +382,8 @@ string getLastLine()
 
     if(file.is_open())
     {
-        file.seekg(-3, ios_base::end); //w zaleznosci od OS, wartosc przesuniecia moze sie zmienic (chodzi o znak '\n')
-        i = file.tellg();
+        file.seekg(-3, ios_base::end); //w zaleznosci od OS, wartosc przesuniecia moze sie zmienic
+        i = file.tellg();              //(chodzi o reprezentacje znaku '\n' w systemie)
 
         for(; i > 0; i--)
         {
@@ -407,14 +408,28 @@ int getIdForNewContact()
     size_t firstBarPos{};
     string idInLineString{};
     int idInLineInt{};
+    int newId{};
 
     string lastLine = getLastLine();
 
-    firstBarPos = lastLine.find('|');
-    idInLineString = lastLine.substr(0, firstBarPos);
-    idInLineInt = atoi(idInLineString.c_str());
+    if(lastLine.empty())
+        newId = 1;
 
-    return idInLineInt + 1;
+    else
+    {
+        firstBarPos = lastLine.find('|');
+
+        if(firstBarPos == 0)    // To wlasnie ten moment, gdzie musze na sztywno przypisac newId = 2,
+            newId = 2;          // zawsze gdy chce dodac drugi kontakt, bo program wczytuje pierwsza
+                                // linijke z pionowa kreska na poczatku, chociaz w pliku ona sie nie pojawia
+        if(firstBarPos != 0)
+        {
+            idInLineString = lastLine.substr(0, firstBarPos);
+            idInLineInt = atoi(idInLineString.c_str());
+            newId = idInLineInt + 1;
+        }
+    }
+    return newId;
 }
 
 void addContact(vector <ContactData> &contacts, int userId)
@@ -586,8 +601,14 @@ void importUserContactsFromFile(vector <ContactData> &contacts, int userId)
     }
     else
     {
-        cout << "There is no file to import data. Your book is empty now." << endl;
-        system("pause");
+        file.close();
+        file.open("Contacts.txt", ios::app);
+    }
+
+    if(contacts.empty())
+    {
+        cout << "There are no contacts. Your book is empty now." << endl;
+        Sleep(1500);
     }
     file.close();
 }
@@ -648,7 +669,8 @@ void importUsersFromFile(vector <User> &users)
             users.push_back(newUser);
         }
     }
-    else
+
+    if(users.empty())
         cout << "There is no file to import data. Your user's base is empty now." << endl << endl;
 
     file.close();
@@ -726,34 +748,42 @@ int signIn(vector <User> &users)
     int actualId = 0;
     bool validLogin = false;
 
-    cout << "Insert login: ";
-    cin >> login;
-
-    for(auto c: users)
+    if(!users.empty())
     {
-        if(login == c.login)
+        cout << "Insert login: ";
+        cin >> login;
+
+        for(auto c: users)
         {
-            cout << "Insert password: ";
-            cin >> password;
-            if(password == c.password)
+            if(login == c.login)
             {
-                actualId = c.id;
-                cout << endl << endl;
+                cout << "Insert password: ";
+                cin >> password;
+                if(password == c.password)
+                {
+                    actualId = c.id;
+                    cout << endl << endl;
+                }
+                else
+                {
+                    cout << "Incorrect password!" << endl;
+                    Sleep(1500);
+                    return 0;
+                }
+                validLogin = true;
             }
-            else
-            {
-                cout << "Incorrect password!" << endl;
-                Sleep(1000);
-                return 0;
-            }
-            validLogin = true;
+        }
+
+        if(!validLogin)
+        {
+            cout << "There is no such login in our base!" << endl;
+            Sleep(1500);
         }
     }
-
-    if(!validLogin)
+    else
     {
-        cout << "There is no such login in our base!" << endl;
-        Sleep(1000);
+        cout << "The base of users is empty now. You must register an user first. " << endl;
+        Sleep(1500);
     }
 
     return actualId;
@@ -816,7 +846,6 @@ void userAddressBookMenu(vector <User> &users, int &userId)
             break;
         case '6':
             editContact(contacts, userId);
-            system("pause");
             break;
         case '7':
             changeUserPassword(users, userId);
@@ -855,7 +884,8 @@ int main()
         {
         case '1':
             actualId = signIn(users);
-            userAddressBookMenu(users, actualId);
+            if(actualId != 0)
+                userAddressBookMenu(users, actualId);
             break;
         case '2':
             registerUser(users);
