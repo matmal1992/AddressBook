@@ -385,7 +385,7 @@ string getLastLine()
         file.seekg(-3, ios_base::end); //w zaleznosci od OS, wartosc przesuniecia moze sie zmienic
         i = file.tellg();              //(chodzi o reprezentacje znaku '\n' w systemie)
 
-        for(; i > 0; i--)
+        for(; i >= 0; i--)
         {
             file.get(ch);
             file.seekg(i);
@@ -418,16 +418,10 @@ int getIdForNewContact()
     else
     {
         firstBarPos = lastLine.find('|');
+        idInLineString = lastLine.substr(0, firstBarPos);
+        idInLineInt = atoi(idInLineString.c_str());
+        newId = idInLineInt + 1;
 
-        if(firstBarPos == 0)    // To wlasnie ten moment, gdzie musze na sztywno przypisac newId = 2,
-            newId = 2;          // zawsze gdy chce dodac drugi kontakt, bo program wczytuje pierwsza
-                                // linijke z pionowa kreska na poczatku, chociaz w pliku ona sie nie pojawia
-        if(firstBarPos != 0)
-        {
-            idInLineString = lastLine.substr(0, firstBarPos);
-            idInLineInt = atoi(idInLineString.c_str());
-            newId = idInLineInt + 1;
-        }
     }
     return newId;
 }
